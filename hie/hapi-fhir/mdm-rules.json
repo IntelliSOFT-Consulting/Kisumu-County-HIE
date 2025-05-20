@@ -1,0 +1,134 @@
+{
+    "version": "1",
+    "mdmTypes": [
+      "Patient"
+    ],
+    "candidateSearchParams": [
+      {
+        "resourceType": "Patient",
+        "searchParams": [
+          "given",
+          "family"
+        ]
+      },
+      {
+        "resourceType": "Patient",
+        "searchParams": [
+          "birthdate"
+        ]
+      },
+      {
+        "resourceType": "Patient",
+        "searchParams": [
+          "identifier"
+        ]
+      },
+      {
+        "resourceType": "Patient",
+        "searchParams": [
+          "phone"
+        ]
+      }
+    ],
+    "candidateFilterSearchParams": [
+      {
+        "resourceType": "Patient",
+        "searchParam": "active",
+        "fixedValue": "true"
+      }
+    ],
+    "matchFields": [
+      {
+        "name": "birthday",
+        "resourceType": "Patient",
+        "resourcePath": "birthDate",
+        "matcher": {
+          "algorithm": "STRING"
+        }
+      },
+      {
+        "name": "phone",
+        "resourceType": "Patient",
+        "resourcePath": "telecom.value",
+        "matcher": {
+          "algorithm": "STRING"
+        }
+      },
+      {
+        "name": "firstname-jaro",
+        "resourceType": "Patient",
+        "fhirPath": "name.given.first()",
+        "similarity": {
+          "algorithm": "JARO_WINKLER",
+          "matchThreshold": 0.8
+        }
+      },
+      {
+        "name": "firstname-meta",
+        "resourceType": "Patient",
+        "fhirPath": "name.given.first()",
+        "matcher": {
+          "algorithm": "METAPHONE"
+        }
+      },
+      {
+        "name": "lastname-jaro",
+        "resourceType": "Patient",
+        "resourcePath": "name.family",
+        "similarity": {
+          "algorithm": "JARO_WINKLER",
+          "matchThreshold": 0.8
+        }
+      },
+      {
+        "name": "lastname-meta",
+        "resourceType": "Patient",
+        "resourcePath": "name.family",
+        "matcher": {
+          "algorithm": "METAPHONE"
+        }
+      },
+      {
+        "name": "identifier-birth-certificate",
+        "resourceType": "Patient",
+        "resourcePath": "identifier",
+        "matcher": {
+          "algorithm": "IDENTIFIER",
+          "identifierSystem": "http://pharmaccess.org/BIRTH-CERTIFICATE"
+        }
+      },
+      {
+        "name": "identifier-passport",
+        "resourceType": "Patient",
+        "resourcePath": "identifier",
+        "matcher": {
+          "algorithm": "IDENTIFIER",
+          "identifierSystem": "http://pharmaccess.org/PASSPORT"
+        }
+      },
+      {
+        "name": "identifier-national-id",
+        "resourceType": "Patient",
+        "resourcePath": "identifier",
+        "matcher": {
+          "algorithm": "IDENTIFIER",
+          "identifierSystem": "http://pharmaccess.org/NATIONAL-ID"
+        }
+      }
+    ],
+    "matchResultMap": {
+      "identifier-birth-certificate": "MATCH",
+      "identifier-national-id": "MATCH",
+      "identifier-passport": "MATCH",
+      "firstname-meta,lastname-meta,birthday": "POSSIBLE_MATCH",
+      "firstname-meta,lastname-meta,phone": "POSSIBLE_MATCH",
+      "firstname-meta,lastname-meta,phone,birthday": "POSSIBLE_MATCH",
+      "firstname-jaro,lastname-jaro,birthday": "POSSIBLE_MATCH",
+      "firstname-jaro,lastname-jaro,phone": "POSSIBLE_MATCH",
+      "lastname-jaro,phone,birthday": "POSSIBLE_MATCH",
+      "firstname-jaro,phone,birthday": "POSSIBLE_MATCH"
+    },
+    "eidSystems":{
+      "Patient":"http://pharmaccess.org/HIE-ID"
+    }
+  }
