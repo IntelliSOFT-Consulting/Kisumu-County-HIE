@@ -1,13 +1,6 @@
 import express from 'express';
-import { FhirApi, OperationOutcome, sendSlackAlert } from '../lib/utils';
-import fetch from 'node-fetch';
-import { processIdentifiers } from '../lib/carepay';
+import { FhirApi, OperationOutcome } from '../lib/utils';
 
-
-const _TEST_PHONE_NUMBERS = process.env.TEST_PHONE_NUMBERS ?? "";
-
-
-// PHONE_NUMBER_FILTERING
 
 export const router = express.Router();
 
@@ -24,6 +17,24 @@ router.post('/', async (req, res) => {
       return;
     }
     let patient = null;
+
+    let encounter;
+    if (data.type !== "transaction") {
+      res.statusCode = 400;
+      res.json(OperationOutcome("Invalid FHIR Resource provided. Expects a FHIR transaction Bundle"));
+      return;
+    }
+    // check if the bundle has an encounter
+    for (let entry of data.entry) {
+      if (entry?.resource?.resourceType === "Encounter") {
+        encounter = entry?.resource?.id;
+        break;
+      }
+    }
+    if (!encounter) {
+      res.status(400).json(OperationOutcome("Bundle must contain an Encounter Resource"));  
+      return; 
+    }
     for (let entry of data.entry) {
       // existing patient
       if (entry?.resource?.resourceType === "Patient" && entry?.request?.method === "PUT") {
@@ -59,74 +70,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-
-
-// process questionnaire response
-router.put('/notifications/QuestionnaireResponse/:id', async (req, res) => {
-  try {
-    let { id } = req.params;
-    let qr = await (await FhirApi({ url: `/QuestionnaireResponse/${id}` })).data;
-    let data = await (await FhirApi({ url: `/${qr?.subject?.reference}` })).data;
-    console.log(data);
-    let tag = data.meta?.tag ?? null;
-    let identifiers = data?.identifier;
-    let parsedIds = await processIdentifiers(identifiers);
-    // console.log(parsedIds);
-
-    // if these ids have already been assigned...
-    if (tag || Object.keys(parsedIds).indexOf('CAREPAY-MEMBER-NUMBER') > -1 || Object.keys(parsedIds).indexOf('CAREPAY-PATIENT-REF') > -1) {
-      res.statusCode = 200;
-      res.json(data);
-      return;
-    }
-    let CAREPAY_MEDIATOR_ENDPOINT = process.env['CAREPAY_MEDIATOR_ENDPOINT'] ?? "";
-    let OPENHIM_CLIENT_ID = process.env['OPENHIM_CLIENT_ID'] ?? "";
-    let OPENHIM_CLIENT_PASSWORD = process.env['OPENHIM_CLIENT_PASSWORD'] ?? "";
-    let response = await (await fetch(CAREPAY_MEDIATOR_ENDPOINT, {
-      body: JSON.stringify(data),
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": 'Basic ' + Buffer.from(OPENHIM_CLIENT_ID + ':' + OPENHIM_CLIENT_PASSWORD).toString('base64')
-      }
-    })).json();
-    if (response.code >= 400) {
-      res.statusCode = response.code;
-      res.json({
-        "resourceType": "OperationOutcome",
-        "id": "exception",
-        "issue": [{
-          "severity": "error",
-          "code": "exception",
-          "details": {
-            "text": `Failed to post beneficiary- ${JSON.stringify(response)}`
-          }
-        }]
-      });
-      sendSlackAlert(`Failed to post beneficiary - ${JSON.stringify(response)}`);
-      return;
-    }
-    res.statusCode = 200;
-    res.json(response);
-    return;
-  } catch (error) {
-    console.error(error);
-    res.statusCode = 400;
-    res.json({
-      "resourceType": "OperationOutcome",
-      "id": "exception",
-      "issue": [{
-        "severity": "error",
-        "code": "exception",
-        "details": {
-          "text": `Failed to post beneficiary- ${JSON.stringify(error)}`
-        }
-      }]
-    });
-    sendSlackAlert(`Failed to post beneficiary - ${JSON.stringify(error)}`);
-    return;
-  }
-});
 
 
 export default router;

@@ -12,14 +12,7 @@ const CRON_INTERVAL = Number(process.env.CRON_INTERVAL ?? 10); // set interval f
 //Import routes 
 
 import Auth from './routes/auth';
-import Beneficiary from './routes/beneficiary';
-import Visit from './routes/visit';
-import Callback from './routes/callback';
-import Custom from './routes/custom';
-import WebFormEnrollment from './routes/forms';
-import Utils from './routes/tempUtils';
-
-import { fetchApprovedEndorsements, fetchVisits } from "./lib/carepay";
+import Patient from './routes/patient';
 
 
 const app = express();
@@ -41,13 +34,8 @@ app.use((req, res, next) => {
   }
 });
 
-app.use('/auth', Auth)
-app.use('/beneficiary', Beneficiary)
-app.use('/forms', WebFormEnrollment)
-app.use('/visit', Visit)
-app.use('/callback', Callback)
-app.use('/custom', Custom)
-app.use('/utils', Utils)
+// app.use('/auth', Auth)
+app.use('/v1/Patient', Patient)
 
 
 
@@ -57,9 +45,9 @@ app.listen(PORT, () => {
 });
 
 // Set up a cron job to run every three minutes
-cron.schedule(`*/${CRON_INTERVAL} * * * *`, () => {
-  console.log(`Cron job running every ${CRON_INTERVAL} minutes`);
-  fetchVisits();
-  fetchApprovedEndorsements();
-});
+// cron.schedule(`*/${CRON_INTERVAL} * * * *`, () => {
+//   console.log(`Cron job running every ${CRON_INTERVAL} minutes`);
+//   fetchVisits();
+//   fetchApprovedEndorsements();
+// });
 

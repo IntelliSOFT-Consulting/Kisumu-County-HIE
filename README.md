@@ -1,6 +1,6 @@
-# MamaToto HIE & Mediation services
+# Kisumu HIE & Mediation services
 
-This repository contains the logic for implementing the mediation service used within the MamaToto HIE stack for completing the relevant workflows.
+This repository contains the logic for implementing the mediation service used within the Kisumu HIE.
 
 ## Standalone instance
 
