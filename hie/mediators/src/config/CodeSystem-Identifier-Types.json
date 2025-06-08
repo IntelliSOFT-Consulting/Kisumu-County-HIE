@@ -1,0 +1,91 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "identifier-types",
+  "url": "http://hie.kisumu.go.ke/fhir/CodeSystem/identifier-types",
+  "version": "1.0.0",
+  "name": "IdentifierTypesCodeSystem",
+  "title": "Identifier Type Code System",
+  "status": "active",
+  "experimental": false,
+  "date": "2024-01-01",
+  "publisher": "Kisumu County Health Information Exchange",
+  "description": "Code system defining identifier types for patient identification documents",
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "system": "urn:iso:std:iso:3166",
+          "code": "KE",
+          "display": "Kenya"
+        }
+      ]
+    }
+  ],
+  "purpose": "To standardize identifier type codes across the HIE system",
+  "copyright": "Copyright 2024 Kisumu County Health Information Exchange",
+  "caseSensitive": true,
+  "hierarchyMeaning": "is-a",
+  "compositional": false,
+  "versionNeeded": false,
+  "content": "complete",
+  "count": 3,
+  "property": [
+    {
+      "code": "system",
+      "description": "The identifier system URI",
+      "type": "string"
+    },
+    {
+      "code": "official",
+      "description": "Whether this is an official government identifier",
+      "type": "boolean"
+    }
+  ],
+  "concept": [
+    {
+      "code": "BIRTH-CERTIFICATE",
+      "display": "Birth Certificate",
+      "definition": "A birth certificate identifier issued by vital records authority",
+      "property": [
+        {
+          "code": "system",
+          "valueString": "http://hie.kisumu.go.ke/birth-certificate"
+        },
+        {
+          "code": "official",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "code": "NATIONAL-ID",
+      "display": "National ID",
+      "definition": "A national identification number issued by the government",
+      "property": [
+        {
+          "code": "system",
+          "valueString": "http://hie.kisumu.go.ke/IdentifierSystem/national-id"
+        },
+        {
+          "code": "official",
+          "valueBoolean": true
+        }
+      ]
+    },
+    {
+      "code": "PASSPORT",
+      "display": "Passport",
+      "definition": "A passport number issued by a national passport authority",
+      "property": [
+        {
+          "code": "system",
+          "valueString": "http://hie.kisumu.go.ke/IdentifierSystem/passport"
+        },
+        {
+          "code": "official",
+          "valueBoolean": true
+        }
+      ]
+    }
+  ]
+}
