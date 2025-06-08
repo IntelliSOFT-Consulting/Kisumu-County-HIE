@@ -40,28 +40,24 @@ router.get("/", async (req, res) => {
   try {
     // support all FHIR query parameters
     
-    let { identifier } = req.query;
+    let { identifier, name } = req.query;
 
-    // check if identifier is provided or name is provided
-    if (!identifier) {
-      return res.status(400).json(OperationOutcome("Identifier query parameter is required"));
-    }
-    // check if identifier is a string
-    if (typeof identifier !== "string") {
-      return res.status(400).json(OperationOutcome("Identifier query parameter must be a string"));
-    }
+    // // check if identifier is provided or name is provided
+    // if (!identifier) {
+    //   return res.status(400).json(OperationOutcome("Identifier query parameter is required"));
+    // }
+    // // check if identifier is a string
+    // if (typeof identifier !== "string") {
+    //   return res.status(400).json(OperationOutcome("Identifier query parameter must be a string"));
+    // }
 
 
-    // add system url to identifier if not provided
-    let system = "http://example.com/fhir/identifier"; // replace with actual system URL
-    let identifierQuery = `identifier=${system}|${identifier}`;
-    // forward query to FHIR server with the reset of query parameters
-    // let queryParams = new URLSearchParams(req.query);
-    // queryParams.delete('identifier'); // remove identifier from query params
-    // let queryString = queryParams.toString();
-    // let url = `/fhir/Patient?${identifierQuery}${queryString ? `&${queryString}` : ''}`;
-    let response = await ClientRegistryApi("url");
-    console.log(JSON.stringify(response));
+    let queryParams = new URLSearchParams(Object.entries(req.query).map(([key, val]) => [key, String(val)]));
+    let queryString = queryParams.toString();
+    let url = `/Patient?${queryString ? `&${queryString}` : ''}`;
+    console.log(`Fetching Patients with query: ${url}`);
+    let response = (await ClientRegistryApi(url)).data;
+    return res.status(200).json(response);
   } catch (error) {
     console.log(error);
     return res.status(400).json(OperationOutcome(`${JSON.stringify(error)}`));
@@ -99,6 +95,5 @@ router.delete("/:id", async (req, res) => {
     return;
   }
 });
-
 
 export default router;
