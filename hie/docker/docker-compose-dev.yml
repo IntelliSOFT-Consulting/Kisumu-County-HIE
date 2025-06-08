@@ -50,8 +50,6 @@ services:
         restart: unless-stopped
         networks:
             - hapi-fhir
-        ports:
-            - "8081:8080"
         depends_on:
             - client-registry-postgres
         volumes:
