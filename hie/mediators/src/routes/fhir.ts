@@ -1,7 +1,5 @@
 import express from 'express';
-import { FhirApi, OperationOutcome, sendSlackAlert } from '../lib/utils';
-import fetch from 'node-fetch';
-import { processIdentifiers } from '../lib/carepay';
+import { FhirApi, OperationOutcome } from '../lib/utils';
 
 
 export const router = express.Router();
