@@ -3,6 +3,12 @@ import cors from 'cors'
 import * as dotenv from 'dotenv'
 import cron from 'node-cron';
 // import { setupSwagger } from "./swagger";
+import { installChannels, importMediators } from "./lib/openhim";
+
+installChannels(); // Install channels for the mediator
+importMediators(); // Import mediators to OpenHIM
+
+
 
 dotenv.config() // Load environment variables
 
@@ -35,7 +41,7 @@ app.use((req, res, next) => {
 });
 
 // app.use('/auth', Auth)
-app.use('/v1/Patient', Patient)
+app.use('/client-registry/v1/Patient', Patient)
 
 
 

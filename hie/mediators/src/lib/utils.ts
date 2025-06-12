@@ -1,3 +1,4 @@
+
 export const shrApiHost = process.env.SHR_BASE_URL;
 export const crApiHost = process.env.CLIENT_REGISTRY_BASE_URL;
 

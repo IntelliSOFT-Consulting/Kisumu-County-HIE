@@ -108,82 +108,8 @@ const genClientPassword = async (password: string) => {
 }
 
 
-export let createFHIRPatientSubscription = async () => {
-    try {
-        let FHIR_SUBSCRIPTION_ID = process.env['FHIR_PATIENT_SUBSCRIPTION_ID'];
-        let FHIR_SUBSCRIPTION_CALLBACK_URL = process.env['FHIR_SUBSCRIPTION_CALLBACK_URL'];
-        let response = await (await FhirApi({
-            url: `/Subscription/${FHIR_SUBSCRIPTION_ID}`,
-            method: "PUT", data: JSON.stringify({
-                resourceType: 'Subscription',
-                id: FHIR_SUBSCRIPTION_ID,
-                status: "active",
-                criteria: 'Patient?',
-                channel: {
-                    type: 'rest-hook',
-                    endpoint: FHIR_SUBSCRIPTION_CALLBACK_URL,
-                    payload: 'application/json'
-                },
-                extension: [
-                    {
-                        url: "http://hapifhir.io/fhir/StructureDefinition/subscription-delivery-retry-count",
-                        valueInteger: 1
-                    },
-                    {
-                        url: "http://hapifhir.io/fhir/StructureDefinition/subscription-retry",
-                        valueBoolean: false
-                    }
-                ]
-            })
-        })).data
-        if (response.resourceType != "OperationOutcome") {
-            console.log(`FHIR Patient Subscription ID: ${FHIR_SUBSCRIPTION_ID}`);
-            return;
-        }
-        console.log(`Failed to create FHIR Subscription: \n${response}`);
-    } catch (error) {
-        console.log(error);
-    }
-}
 
-export let createEncounterSubscription = async () => {
-    try {
-        let FHIR_SUBSCRIPTION_ID = process.env['FHIR_ENCOUNTER_SUBSCRIPTION_ID'];
-        let FHIR_SUBSCRIPTION_CALLBACK_URL = process.env['FHIR_ENCOUNTER_CALLBACK_URL'];
-        let response = await (await FhirApi({
-            url: `/Subscription/${FHIR_SUBSCRIPTION_ID}`,
-            method: "PUT", data: JSON.stringify({
-                resourceType: 'Subscription',
-                id: FHIR_SUBSCRIPTION_ID,
-                status: "active",
-                criteria: 'Encounter?status=finished',
-                channel: {
-                    type: 'rest-hook',
-                    endpoint: FHIR_SUBSCRIPTION_CALLBACK_URL,
-                    payload: 'application/json'
-                },
-                extension: [
-                    {
-                        url: "http://hapifhir.io/fhir/StructureDefinition/subscription-delivery-retry-count",
-                        valueInteger: 1
-                    }, {
-                        url: "http://hapifhir.io/fhir/StructureDefinition/subscription-retry",
-                        valueBoolean: false
-                    }
-                ]
-            })
-        })).data
-        if (response.resourceType != "OperationOutcome") {
-            console.log(`FHIR Encounter Subscription ID: ${FHIR_SUBSCRIPTION_ID}`);
-            return;
-        }
-        console.log(`Failed to create FHIR Subscription: \n${response}`);
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-createClient(process.env['OPENHIM_CLIENT_ID'] || '', process.env['OPENHIM_CLIENT_PASSWORD'] || '');
+// createClient(process.env['OPENHIM_CLIENT_ID'] || '', process.env['OPENHIM_CLIENT_PASSWORD'] || '');
 
 
 const OPENHIM_DEV_URL = process.env.OPENHIM_DEV_URL ?? '';

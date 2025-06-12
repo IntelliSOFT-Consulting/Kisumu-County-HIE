@@ -1,4 +1,6 @@
 import { ClientRegistryApi } from "./utils";
+import { sendRequestToMediator } from './openhim';
+
 
 
 const IDENTIFIERS_CONFIG = process.env.IDENTIFIERS_CONFIG ?? null;
