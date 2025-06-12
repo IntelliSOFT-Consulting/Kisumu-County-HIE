@@ -24,10 +24,10 @@ router.post("/", async (req, res) => {
 
     const isUnique = await clientRegistry.checkIdentifierUniqueness(data);
     if (isUnique) {
-        const patient = await clientRegistry.savePatient(data);
-        return res.status(201).json(patient);
+      const patient = await clientRegistry.savePatient(data);
+      return res.status(201).json(patient);
     } else {
-        return res.status(400).json(OperationOutcome(`Patient with provided identifiers already registered`));
+      return res.status(400).json(OperationOutcome(`Patient with provided identifiers already registered`));
     }
   } catch (error: any) {
     console.log(error);
@@ -39,7 +39,7 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     // support all FHIR query parameters
-    
+
     let { identifier, name } = req.query;
 
     // // check if identifier is provided or name is provided
@@ -64,6 +64,19 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.put("/:id", async (req, res) => {
+  try {
+    const data = req.body;
+    let { id } = req.params;
+    if (data.resourceType !== "Patient") {
+      return res.status(400).json(OperationOutcome(`${JSON.stringify(`Invalid Patient resource`)}`));
+    }
+    let response = await ClientRegistryApi(`/Patient/${id}`, { method: "PUT", data: JSON.stringify(data) });
+    return res.status(response.statusCode).json(response.data);
+  } catch (error) {
+    return res.status(400).json(OperationOutcome(`${JSON.stringify(error)}`));
+  }
+});
 
 // support custom delete of a Patient
 // add a UI to input phone number
@@ -71,9 +84,9 @@ router.delete("/:id", async (req, res) => {
   let data = req.body;
   // let { phoneNumber } = req.params;
   try {
-    let response = await ClientRegistryApi("/fhir/Patient", data);
+    let response = await ClientRegistryApi("/Patient", data);
     console.log(JSON.stringify(response));
-    
+
     res.statusCode = 201;
     res.json(response);
     return;
