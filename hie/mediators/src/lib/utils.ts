@@ -62,15 +62,17 @@ export const ClientRegistryApi = async (url: string, params: any | null = {}) =>
         let res = {
             status: "success",
             statusText: response.statusText,
-            data: responseJSON
+            data: responseJSON,
+            statusCode: response.status
         };
         return res;
     } catch (error) {
         console.error(error);
         let res = {
-            statusText: "Client registry error",
+            statusText: "Client registry service error",
             status: "error",
-            data: error
+            data: error,
+            statusCode: 500
         };
         console.error(error);
         return res;
