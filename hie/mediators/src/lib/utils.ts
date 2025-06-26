@@ -1,15 +1,16 @@
+import { stat } from "fs";
 
 export const shrApiHost = process.env.SHR_BASE_URL;
 export const crApiHost = process.env.CLIENT_REGISTRY_BASE_URL;
 
 // a fetch wrapper for HAPI FHIR server.
-export const FhirApi = async (params: any) => {
-    let _defaultHeaders = { "Content-Type": 'application/json' }
+export const FhirApi = async (url: string, params: any | null = {}) => {
+    let _defaultHeaders = { "Content-Type": 'application/json', "Cache-Control": "no-cache" }
     if (!params.method) {
         params.method = 'GET';
     }
     try {
-        let response = await fetch(String(`${shrApiHost}${params.url}`), {
+        let response = await fetch(String(`${shrApiHost}${url}`), {
             headers: _defaultHeaders,
             method: params.method ? String(params.method) : 'GET',
             ...(params.method !== 'GET' && params.method !== 'DELETE') && { body: String(params.data) }
@@ -18,7 +19,8 @@ export const FhirApi = async (params: any) => {
         let res = {
             status: "success",
             statusText: response.statusText,
-            data: responseJSON
+            data: responseJSON,
+            statusCode: response.status
         };
         return res;
     } catch (error) {
@@ -26,7 +28,8 @@ export const FhirApi = async (params: any) => {
         let res = {
             statusText: "FHIRFetch: server error",
             status: "error",
-            data: error
+            data: error,
+            statusCode: 500
         };
         console.error(error);
         return res;
@@ -85,8 +88,7 @@ export let createFHIRPatientSubscription = async () => {
     try {
         let FHIR_SUBSCRIPTION_ID = process.env['FHIR_PATIENT_SUBSCRIPTION_ID'];
         let FHIR_SUBSCRIPTION_CALLBACK_URL = process.env['FHIR_SUBSCRIPTION_CALLBACK_URL'];
-        let response = await (await FhirApi({
-            url: `/Subscription/${FHIR_SUBSCRIPTION_ID}`,
+        let response = await (await FhirApi(`/Subscription/${FHIR_SUBSCRIPTION_ID}`, {
             method: "PUT", data: JSON.stringify({
                 resourceType: 'Subscription',
                 id: FHIR_SUBSCRIPTION_ID,
@@ -123,8 +125,8 @@ export let createEncounterSubscription = async () => {
     try {
         let FHIR_SUBSCRIPTION_ID = process.env['FHIR_ENCOUNTER_SUBSCRIPTION_ID'];
         let FHIR_SUBSCRIPTION_CALLBACK_URL = process.env['FHIR_ENCOUNTER_CALLBACK_URL'];
-        let response = await (await FhirApi({
-            url: `/Subscription/${FHIR_SUBSCRIPTION_ID}`,
+        let response = await (await FhirApi(
+            `/Subscription/${FHIR_SUBSCRIPTION_ID}`, {
             method: "PUT", data: JSON.stringify({
                 resourceType: 'Subscription',
                 id: FHIR_SUBSCRIPTION_ID,
@@ -161,8 +163,8 @@ export let createQuestionnaireResponseSubscription = async () => {
     try {
         let FHIR_SUBSCRIPTION_ID = process.env['FHIR_QRESPONSE_SUBSCRIPTION_ID'];
         let FHIR_SUBSCRIPTION_CALLBACK_URL = process.env['FHIR_QRESPONSE_CALLBACK_URL'];
-        let response = await (await FhirApi({
-            url: `/Subscription/${FHIR_SUBSCRIPTION_ID}`,
+        let response = await (await FhirApi(
+            `/Subscription/${FHIR_SUBSCRIPTION_ID}`, {
             method: "PUT", data: JSON.stringify({
                 resourceType: 'Subscription',
                 id: FHIR_SUBSCRIPTION_ID,

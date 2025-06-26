@@ -1,4 +1,4 @@
-import express from "express";
+import express, { response } from "express";
 
 import { ClientRegistryService } from "../lib/client-registry";
 import { ClientRegistryApi, OperationOutcome } from "../lib/utils";
@@ -9,10 +9,9 @@ export const router = express.Router();
 // Custom middleware to handle application/fhir+json content type
 router.use(
   express.json({
-    type: ["application/json", "application/fhir+json"],
+    type: ["application/json", "application/fhir+json"]
   })
 );
-
 
 router.post("/", async (req, res) => {
   try {
@@ -35,7 +34,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-
 router.get("/", async (req, res) => {
   try {
     // support all FHIR query parameters
@@ -50,7 +48,6 @@ router.get("/", async (req, res) => {
     // if (typeof identifier !== "string") {
     //   return res.status(400).json(OperationOutcome("Identifier query parameter must be a string"));
     // }
-
 
     let queryParams = new URLSearchParams(Object.entries(req.query).map(([key, val]) => [key, String(val)]));
     let queryString = queryParams.toString();
@@ -71,41 +68,29 @@ router.put("/:id", async (req, res) => {
     if (data.resourceType !== "Patient") {
       return res.status(400).json(OperationOutcome(`${JSON.stringify(`Invalid Patient resource`)}`));
     }
-    let response = await ClientRegistryApi(`/Patient/${id}`, { method: "PUT", data: JSON.stringify(data) });
+    let response = await ClientRegistryApi(`/Patient/${id}`, { method: "PUT", data: data });
     return res.status(response.statusCode).json(response.data);
   } catch (error) {
     return res.status(400).json(OperationOutcome(`${JSON.stringify(error)}`));
   }
 });
 
-// support custom delete of a Patient
-// add a UI to input phone number
 router.delete("/:id", async (req, res) => {
-  let data = req.body;
-  // let { phoneNumber } = req.params;
   try {
-    let response = await ClientRegistryApi("/Patient", data);
+    let data = req.body;
+    let { id } = req.params;
+    if (data.resourceType !== "Patient") {
+      return res.status(400).json(OperationOutcome(`${JSON.stringify(`Invalid Patient resource`)}`));
+    }
+    // check if patient exists
+    let response = (await ClientRegistryApi(`/Patient/${id}`)).data;
     console.log(JSON.stringify(response));
-
-    res.statusCode = 201;
-    res.json(response);
-    return;
+    // change patient status to inactive
+    response.status = "inactive";
+    let updatedPatient = (await ClientRegistryApi(`/Patient/${id}`, { method: "PUT", data: response }));
+    return res.status(updatedPatient.statusCode).json(updatedPatient);
   } catch (error) {
-    res.statusCode = 400;
-    res.json({
-      resourceType: "OperationOutcome",
-      id: "exception",
-      issue: [
-        {
-          severity: "error",
-          code: "exception",
-          details: {
-            text: `${JSON.stringify(error)}`,
-          },
-        },
-      ],
-    });
-    return;
+    return res.status(400).json(OperationOutcome(`${JSON.stringify(error)}`));
   }
 });
 

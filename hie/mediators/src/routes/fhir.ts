@@ -11,7 +11,7 @@ router.post('/', async (req, res) => {
   try {
     let data = req.body;
     // console.log("FHIR Bundle Payload", data);
-    if (data.resourceType != "Bundle") {
+    if (data.resourceType != "Bundle" || !data.entry || !Array.isArray(data.entry)) {
       res.statusCode = 400;
       res.json(OperationOutcome("Invalid FHIR Resource provided. Expects a FHIR transaction Bundle"));
       return;
@@ -27,28 +27,23 @@ router.post('/', async (req, res) => {
     // check if the bundle has an encounter
     for (let entry of data.entry) {
       if (entry?.resource?.resourceType === "Encounter") {
-        encounter = entry?.resource?.id;
-        break;
+        encounter = entry?.resource;
+        // check if encounter has a profile
+
       }
     }
+
     if (!encounter) {
-      res.status(400).json(OperationOutcome("Bundle must contain an Encounter Resource"));  
-      return; 
+      res.status(400).json(OperationOutcome("Bundle must contain an Encounter Resource"));
+      return;
+    }
+    if (!encounter.meta || !encounter.meta.profile) {
+      res.statusCode = 400;
+      res.json(OperationOutcome("Invalid FHIR Resource provided. Expects an Encounter with a profile"));
+      return;
     }
     for (let entry of data.entry) {
-      // existing patient
-      if (entry?.resource?.resourceType === "Patient" && entry?.request?.method === "PUT") {
-        patient = entry?.resource?.id;
-        break;
-      }
-      // create a new patient
-      if (entry?.resource?.resourceType === "Patient" && entry?.request?.method === "POST") {
-        patient = entry?.resource?.id;
-        let fhirPatient = entry?.resource;
-        for (let id of fhirPatient.identifiers) {
-          // if()
-        }
-      }
+      
     }
     if (!patient) {
       res.statusCode = 400;

@@ -1,16 +1,20 @@
 // //- profile validation
 
-import { FhirApi } from "./utils";
+import { ClientRegistryApi, FhirApi } from "./utils";
 
-const IG_FHIR_SERVER = process.env.IG_FHIR_SERVER;
 
 export async function validateResourceProfile(
   resource: any,
-  profileId: string
+  profile: string | null = null
 ) {
+
+  if(!profile) {
+    profile = resource.meta?.profile?.[0]?.split("/").pop();
+  }
+
   const response = (
     await FhirApi({
-      url: `${resource.resourceType}/$validate?profile=${IG_FHIR_SERVER}/StructureDefinition/${profileId}`,
+      url: `${resource.resourceType}/$validate?profile=StructureDefinition/${profile}`,
       method: "POST",
       body: resource,
     })
@@ -56,6 +60,8 @@ const _asyncValidator = async (resources: Array<any>) => {
           `${resource} failed resource validation: invalid entity`
         );
       }
+      
+      
       // results[`${resource.id}`]
     }
   } catch (error) {
@@ -66,7 +72,7 @@ const _asyncValidator = async (resources: Array<any>) => {
 
 export const findPatientByIdentifier = async (id: string, identifierType: string | null = null) => {
   try {
-    const patient = (await FhirApi({ url: `/Patient?identifier=${id}` })).data;
+    const patient = (await ClientRegistryApi(`/Patient?identifier=${id}`)).data;
     if (patient?.entry?.total && patient?.entry?.total > 0) {
       return patient?.entry?.[0]?.resource?.id;
     }
