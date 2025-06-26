@@ -13,12 +13,13 @@ const CRON_INTERVAL = Number(process.env.CRON_INTERVAL ?? 10); // set interval f
 
 import Auth from './routes/auth';
 import Patient from './routes/patient';
+import Encounter from './routes/encounters';
 
 
 const app = express();
 const PORT = 3000;
 
-app.use(cors())
+app.use(cors());
 
 // setupSwagger(app);
 
@@ -35,7 +36,8 @@ app.use((req, res, next) => {
 });
 
 // app.use('/auth', Auth)
-app.use('/v1/Patient', Patient)
+app.use('/v1/Patient', Patient);
+app.use('/v1/shr/Encounter', Encounter);
 
 
 
