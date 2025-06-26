@@ -51,7 +51,7 @@ router.post('/', async (req, res) => {
       return;
     }
     // check if patient exists
-    let fhirPatient = (await FhirApi({ url: `/Patient/${patient}` })).data;
+    let fhirPatient = (await FhirApi(`/Patient/${patient}`)).data;
     if (fhirPatient.resourceType === "Patient") {
       return res.status(400).json(OperationOutcome("Invalid FHIR Resource provided. Expects a FHIR transaction Bundle"));
     }
