@@ -1,5 +1,5 @@
 import express, { Request, response, Response } from "express";
-import { createClient, getOpenHIMToken, installChannels } from "../lib/utils";
+import { createClient, getOpenHIMToken, installChannels } from "../lib/openhim";
 import { getKeycloakAdminToken, getKeycloakUserToken } from "../lib/keycloak";
 
 

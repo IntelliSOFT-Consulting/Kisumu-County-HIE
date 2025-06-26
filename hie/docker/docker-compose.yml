@@ -1,17 +1,14 @@
-version: "3"
 networks:
     openhim:
     hapi-fhir:
     mediators:
-    cloudbuild:
+    hie:
         external: true
 
 services:
     mongo:
         container_name: openhim-mongo
         image: mongo:4.0
-        ports:
-            - 27017:27017
         networks:
             - openhim
         volumes:
@@ -37,7 +34,7 @@ services:
         restart: unless-stopped
         networks:
             - hapi-fhir
-            - cloudbuild
+            - hie
         environment:
             POSTGRES_USER: postgres
             POSTGRES_DB: hapi
@@ -78,14 +75,14 @@ services:
         restart: unless-stopped
         image: jembi/openhim-core:latest
         env_file:
-            - .env
+            - ../openhim/.env
         depends_on:
             - mongo
             - openhim-console
         networks:
             - openhim
             - hapi-fhir
-            - mediators
+            - hie
         healthcheck:
             test: "curl -sSk https://openhim-core:8080/heartbeat || exit 1"
             interval: 30s
@@ -98,14 +95,25 @@ services:
         restart: on-failure
         networks:
             - openhim
+            - hie
         healthcheck:
             test: "curl -sS http://openhim-console || exit 1"
             interval: 30s
             timeout: 30s
             retries: 3
         volumes:
-            - ./default.json:/usr/share/nginx/html/config/default.json
-            - /etc/ssl/crt:/etc/nginx/certs
+            - ../openhim/default.json:/usr/share/nginx/html/config/default.json
+
+    auth:
+        container_name: auth
+        build: 
+            context: ../auth
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        networks:
+            - hie
+        env_file:
+            - ../auth/.env
 
     mediators:
         depends_on:
@@ -115,13 +123,14 @@ services:
         container_name: mediators
         restart: on-failure
         build:
-            context: mediators
+            context: ../mediators
             dockerfile: Dockerfile
         networks:
             - openhim
             - hapi-fhir
+            - hie
         env_file:
-            - mediators/.env
+            - ../mediators/.env
     
 
 

@@ -6,7 +6,7 @@
     "defaultChannelConfig": [
       {
         "name": "Client Registry Channel",
-        "urlPattern": "^/client-registry/.*$",
+        "urlPattern": "^/client-registry/v1/.*$",
         "routes": [
           {
             "name": "Client Registry Route",
@@ -27,7 +27,7 @@
       {
         "name": "CR Mediator Endpoint",
         "host": "mediators",
-        "path": "/Patient",
+        "path": "/client-registry/v1",
         "port": "3000",
         "primary": true,
         "type": "http",

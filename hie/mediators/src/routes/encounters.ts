@@ -65,11 +65,9 @@ router.post('/', async (req, res) => {
       return;
     }
 
-    // post to FHIR Server
+    // post to SHR Server
     let response = await FhirApi(`${data.resourceType === "Bundle" ? "/" : `/Encounter || ''}`}`, { method: "POST", data: data });
-
-
-    return res.status(response.status).json(response.data);
+    return res.status(response.statusCode).json(response.data);
 
 
 

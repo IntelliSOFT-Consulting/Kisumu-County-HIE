@@ -2,8 +2,8 @@ import { FhirApi } from "./utils"
 
 
 export const findPossibleMatches = async (count: number) => {
-    let res = (await FhirApi({
-        url: `/$mdm-query-links?_offset=${0}&_count=${count}`,
+    let res = (await FhirApi(
+        `/$mdm-query-links?_offset=${0}&_count=${count}`, {
     })).data
     console.log(res.parameter);
     let matches = [];
@@ -22,8 +22,8 @@ export const findPossibleMatches = async (count: number) => {
 
 
 export const linkRecords = async (goldenRecord: string, sourceRecord: string) => {
-    let res = await FhirApi({
-        url: `/$mdm-create-link`,
+    let res = await FhirApi(
+        `/$mdm-create-link`, {
         method: 'POST',
         data: JSON.stringify({
             "resourceType": "Parameters",
@@ -43,8 +43,8 @@ export const linkRecords = async (goldenRecord: string, sourceRecord: string) =>
 }
 
 export const getDuplicateGoldenRecords = async (count: number) => {
-    let res = (await FhirApi({
-        url: `/$mdm-duplicate-golden-resources?_offset=${0}&_count=${count}`,
+    let res = (await FhirApi(
+        `/$mdm-duplicate-golden-resources?_offset=${0}&_count=${count}`, {
     })).data
     // console.log(res.parameter);
     let duplicates = [];
@@ -65,8 +65,8 @@ export const getDuplicateGoldenRecords = async (count: number) => {
 // getDuplicateGoldenRecords(10)
 
 export const mergeRecords = async (from: string, to: string) => {
-    let res = await FhirApi({
-        url: `/$mdm-merge-golden-resources`,
+    let res = await FhirApi(
+        `/$mdm-merge-golden-resources`, {
         method: 'POST',
         data: JSON.stringify({
             "resourceType": "Parameters",
