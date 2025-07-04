@@ -14,6 +14,7 @@ const CRON_INTERVAL = Number(process.env.CRON_INTERVAL ?? 10); // set interval f
 import Auth from './routes/auth';
 import Patient from './routes/patient';
 import Encounter from './routes/encounters';
+import Observation from './routes/observations';
 
 
 const app = express();
@@ -36,8 +37,10 @@ app.use((req, res, next) => {
 });
 
 // app.use('/auth', Auth)
-app.use('/v1/Patient', Patient);
-app.use('/v1/shr/Encounter', Encounter);
+app.use('/client-registry/v1/Patient', Patient);
+app.use('/shr/v1/Encounter', Encounter);
+app.use('/shr/v1/Observation', Observation);
+
 
 
 

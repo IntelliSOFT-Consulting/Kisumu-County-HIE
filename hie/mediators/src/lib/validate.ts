@@ -8,13 +8,12 @@ export async function validateResourceProfile(
   profile: string | null = null
 ) {
 
-  if(!profile) {
+  if (!profile) {
     profile = resource.meta?.profile?.[0]?.split("/").pop();
   }
 
   const response = (
-    await FhirApi({
-      url: `${resource.resourceType}/$validate?profile=StructureDefinition/${profile}`,
+    await FhirApi(`${resource.resourceType}/$validate?profile=StructureDefinition/${profile}`, {
       method: "POST",
       body: resource,
     })
@@ -60,8 +59,8 @@ const _asyncValidator = async (resources: Array<any>) => {
           `${resource} failed resource validation: invalid entity`
         );
       }
-      
-      
+
+
       // results[`${resource.id}`]
     }
   } catch (error) {
@@ -73,11 +72,10 @@ const _asyncValidator = async (resources: Array<any>) => {
 export const findPatientByIdentifier = async (id: string, identifierType: string | null = null) => {
   try {
     const patient = (await ClientRegistryApi(`/Patient?identifier=${id}`)).data;
-    if (patient?.entry?.total && patient?.entry?.total > 0) {
+    if (patient?.total && (patient?.total) > 0) {
       return patient?.entry?.[0]?.resource?.id;
     }
-    return patient.id;
-  } catch (error) { 
+  } catch (error) {
     return null;
   }
 };
@@ -96,33 +94,33 @@ interface EntityReference {
 
 function extractEntities(data: any): EntityReference[] {
   const entities: EntityReference[] = [];
-  
+
   function isEntityReference(obj: any): boolean {
-    return obj && 
-           (obj.reference || obj.identifier || obj.display) &&
-           typeof obj === 'object' &&
-           !Array.isArray(obj);
+    return obj &&
+      (obj.reference || obj.identifier || obj.display) &&
+      typeof obj === 'object' &&
+      !Array.isArray(obj);
   }
-  
+
   function extractFromObject(obj: any) {
     if (!obj || typeof obj !== 'object') return;
-    
+
     // Handle arrays
     if (Array.isArray(obj)) {
       obj.forEach(item => extractFromObject(item));
       return;
     }
-    
+
     // Check common FHIR reference fields
     const referenceFields = [
       'subject', 'patient', 'practitioner', 'organization',
       'requester', 'performer', 'author', 'asserter',
       'recorder', 'participant', 'encounter', 'location'
     ];
-    
+
     for (const key of Object.keys(obj)) {
       const value = obj[key];
-      
+
       // If it's a reference field and contains reference data
       if (referenceFields.includes(key) && isEntityReference(value)) {
         const entityRef: EntityReference = {
@@ -130,24 +128,24 @@ function extractEntities(data: any): EntityReference[] {
           reference: value.reference,
           display: value.display
         };
-        
+
         if (value.identifier) {
           entityRef.identifier = {
             value: value.identifier.value,
             system: value.identifier.system
           };
         }
-        
+
         entities.push(entityRef);
       }
-      
+
       // Recursively search nested objects
       if (typeof value === 'object') {
         extractFromObject(value);
       }
     }
   }
-  
+
   try {
     extractFromObject(data);
     return entities;

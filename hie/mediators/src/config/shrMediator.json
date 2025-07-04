@@ -1,0 +1,37 @@
+{
+    "urn": "urn:mediator:shr-registry",
+    "version": "1.0.0",
+    "name": "Shared Health Records Mediator",
+    "description": "This mediator is responsible for handling SHR bound requests.",
+    "defaultChannelConfig": [
+      {
+        "name": "SHR Channel",
+        "urlPattern": "^/shr/.*$",
+        "routes": [
+          {
+            "name": "SHR Route",
+            "host": "mediators",
+            "port": "3000",
+            "primary": true,
+            "type": "http",
+            "status":"enabled"
+  
+          }
+        ],
+        "allow": ["*"],
+        "methods": ["GET", "POST", "PUT"],
+        "type": "http"
+      }
+    ],
+    "endpoints": [
+      {
+        "name": "SHR Mediator Endpoint",
+        "host": "mediators",
+        "path": "/v1/shr",
+        "port": "3000",
+        "primary": true,
+        "type": "http",
+        "status":"enabled"
+      }
+    ]
+  }

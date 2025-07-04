@@ -48,6 +48,8 @@ services:
         image: hapiproject/hapi:v7.4.0
         container_name: client-registry
         restart: unless-stopped
+        ports:
+            - "8085:8080"
         networks:
             - hapi-fhir
         depends_on:
