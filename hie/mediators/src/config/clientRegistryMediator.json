@@ -27,7 +27,7 @@
       {
         "name": "CR Mediator Endpoint",
         "host": "mediators",
-        "path": "/Patient",
+        "path": "/v1/Patient",
         "port": "3000",
         "primary": true,
         "type": "http",

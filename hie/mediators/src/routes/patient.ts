@@ -54,6 +54,7 @@ router.get("/", async (req, res) => {
     let url = `/Patient?${queryString ? `&${queryString}` : ''}`;
     console.log(`Fetching Patients with query: ${url}`);
     let response = (await ClientRegistryApi(url)).data;
+    console.log("Response from Client Registry:", response);
     return res.status(200).json(response);
   } catch (error) {
     console.log(error);
@@ -75,23 +76,37 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    let data = req.body;
     let { id } = req.params;
-    if (data.resourceType !== "Patient") {
-      return res.status(400).json(OperationOutcome(`${JSON.stringify(`Invalid Patient resource`)}`));
-    }
-    // check if patient exists
     let response = (await ClientRegistryApi(`/Patient/${id}`)).data;
-    console.log(JSON.stringify(response));
-    // change patient status to inactive
-    response.status = "inactive";
-    let updatedPatient = (await ClientRegistryApi(`/Patient/${id}`, { method: "PUT", data: response }));
-    return res.status(updatedPatient.statusCode).json(updatedPatient);
+    if (!response.resourceType || response.resourceType !== "Patient") {
+      return res.status(404).json(OperationOutcome(`Patient with ID ${id} not found`));
+    }
+    return res.status(200).json(response);
   } catch (error) {
+    console.log(error);
     return res.status(400).json(OperationOutcome(`${JSON.stringify(error)}`));
   }
-});
+}); 
+
+// router.delete("/:id", async (req, res) => {
+//   try {
+//     let data = req.body;
+//     let { id } = req.params;
+//     if (data.resourceType !== "Patient") {
+//       return res.status(400).json(OperationOutcome(`${JSON.stringify(`Invalid Patient resource`)}`));
+//     }
+//     // check if patient exists
+//     let response = (await ClientRegistryApi(`/Patient/${id}`)).data;
+//     console.log(JSON.stringify(response));
+//     // change patient status to inactive
+//     response.status = "inactive";
+//     let updatedPatient = (await ClientRegistryApi(`/Patient/${id}`, { method: "PUT", data: response }));
+//     return res.status(updatedPatient.statusCode).json(updatedPatient);
+//   } catch (error) {
+//     return res.status(400).json(OperationOutcome(`${JSON.stringify(error)}`));
+//   }
+// });
 
 export default router;

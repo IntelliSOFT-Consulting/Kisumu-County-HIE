@@ -1,11 +1,13 @@
-import { stat } from "fs";
+import { importMediators, installChannels } from "./openhim";
+
+importMediators();
 
 export const shrApiHost = process.env.SHR_BASE_URL;
 export const crApiHost = process.env.CLIENT_REGISTRY_BASE_URL;
 
 // a fetch wrapper for HAPI FHIR server.
 export const FhirApi = async (url: string, params: any | null = {}) => {
-    let _defaultHeaders = { "Content-Type": 'application/json', "Cache-Control": "no-cache" }
+    let _defaultHeaders = { "Content-Type": 'application/fhir+json', "Cache-Control": "no-cache" }
     if (!params.method) {
         params.method = 'GET';
     }
@@ -13,7 +15,7 @@ export const FhirApi = async (url: string, params: any | null = {}) => {
         let response = await fetch(String(`${shrApiHost}${url}`), {
             headers: _defaultHeaders,
             method: params.method ? String(params.method) : 'GET',
-            ...(params.method !== 'GET' && params.method !== 'DELETE') && { body: String(params.data) }
+            ...(params.method !== 'GET' && params.method !== 'DELETE') && { body: JSON.stringify(params.data) }
         });
         let responseJSON = await response.json();
         let res = {
